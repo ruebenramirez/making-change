@@ -1,3 +1,5 @@
+import functools
+
 # Making Change
 
 # Given a number "x" and a sorted array of coins "coinset", write a function
@@ -17,7 +19,6 @@ DEBUG = True
 
 
 class Change:
-
     def __init__(self):
         self.coins = {}
 
@@ -25,13 +26,21 @@ class Change:
         self.coins.update({coin: count})
 
     def coins(self):
-        return self.coin
+        return self.coins
+
+
+@functools.lru_cache()
+def optimal_coinset(x, coinset):
+    """Only use coins we're able to make change with."""
+    coinset = []
+    for coin in coinset:
+        if x <= coin:
+            coinset.append(coin)
+    return coinset
 
 
 def make_change(x, coinset):
-    if DEBUG:
-        print("making change for {x}".format(x=x))
-        print("coinset: {cs}".format(cs=coinset))
+    coinset = optimal_coinset(x, coinset)
     change = Change()
     for coin in coinset:
         if coin <= x:
@@ -46,9 +55,9 @@ def make_change(x, coinset):
 
 
 print(make_change(6, [1, 5, 10, 25]))
-print()
-print(make_change(6, [3, 4]))
-print()
-print(make_change(6, [1, 3, 4]))
-print()
-print(make_change(6, [5, 7]))
+# print()
+# print(make_change(6, [3, 4]))
+# print()
+# print(make_change(6, [1, 3, 4]))
+# print()
+# print(make_change(6, [5, 7]))
