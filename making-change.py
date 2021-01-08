@@ -29,6 +29,8 @@ def optimal_coinset(x, coinset):
 
 
 def make_change(x, coinset):
+    if x == 0:
+        return {}
     coinset = optimal_coinset(x, coinset)
     change = {}
     for coin in coinset:
