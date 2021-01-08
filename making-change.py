@@ -18,17 +18,6 @@ import functools
 DEBUG = True
 
 
-class Change:
-    def __init__(self):
-        self.coins = {}
-
-    def add_coins(self, coin, count):
-        self.coins.update({coin: count})
-
-    def coins(self):
-        return self.coins
-
-
 @functools.lru_cache()
 def optimal_coinset(x, coinset):
     """Only use coins we're able to make change with."""
@@ -41,15 +30,15 @@ def optimal_coinset(x, coinset):
 
 def make_change(x, coinset):
     coinset = optimal_coinset(x, coinset)
-    change = Change()
+    change = {}
     for coin in coinset:
         if coin <= x:
             coin_count = x // coin
             if coin_count > 0:
-                change.add_coins(coin, coin_count)
+                change.update({coin: coin_count})
                 x = x - (coin * coin_count)
         if x == 0:
-            return change.coins
+            return change
 
     raise Exception("Unable to make change: {change}".format(change=change))
 
