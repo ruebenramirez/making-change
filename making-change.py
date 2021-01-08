@@ -1,5 +1,3 @@
-import functools
-
 # Making Change
 
 # Given a number "x" and a sorted array of coins "coinset", write a function
@@ -17,8 +15,6 @@ import functools
 
 DEBUG = True
 
-
-@functools.lru_cache()
 def optimal_coinset(x, coinset):
     """Only use coins we're able to make change with."""
     coinset = []
@@ -34,12 +30,8 @@ def make_change(x, coinset):
     coinset = optimal_coinset(x, coinset)
     change = {}
     for coin in coinset:
-        if coin <= x:
-            coin_count = x // coin
-            if coin_count > 0:
-                change.update({coin: coin_count})
-                x = x - (coin * coin_count)
-        if x == 0:
+        change.add_coin(coin)
+        if change_remainder == 0:
             return change
 
     raise Exception("Unable to make change: {change}".format(change=change))
@@ -52,3 +44,10 @@ print(make_change(6, [1, 5, 10, 25]))
 # print(make_change(6, [1, 3, 4]))
 # print()
 # print(make_change(6, [5, 7]))
+
+
+# TODO: optimization: use some floor division to grab coin multiples without
+# additional loops
+
+# TODO: optimization: implement memoization to reduce the number of loops
+# required to tabulate change
