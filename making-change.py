@@ -15,39 +15,54 @@
 
 DEBUG = True
 
-def optimal_coinset(x, coinset):
+
+def optimal_coinset(target_change, coinset):
     """Only use coins we're able to make change with."""
-    coinset = []
+    coins = []
     for coin in coinset:
-        if x <= coin:
-            coinset.append(coin)
-    return coinset
+        if coin <= target_change:
+            coins.append(coin)
+    return coins
+
+
+def gen_change(change_target, coinset):
+    """explore all possibilities to make target change given coins"""
+    if change_target == 0:
+        return []
+    if change_target < 0:
+        return None
+    coinset = optimal_coinset(change_target, coinset)
+    change = None
+    for coin in coinset:
+        change_remainder = change_target - coin
+        change_option = gen_change(change_remainder, coinset)
+        if change_option is not None:
+            change_option.append(coin)
+            if change is None or len(change_option) < len(change):
+                change = change_option
+    return change
+
+
+def count_change(coins):
+    """count change out into desired output format"""
+    change = {}
+    for coin in coins:
+        count = change.get(coin, 0) + 1
+        change[coin] = count
+    return change
 
 
 def make_change(x, coinset):
-    if x == 0:
+    try:
+        coins = gen_change(x, coinset)
+        return count_change(coins)
+    except Exception:
+        print("Unable to make change for {x} with these coins: {cs}".format(
+            x=x, cs=coinset))
         return {}
-    coinset = optimal_coinset(x, coinset)
-    change = {}
-    for coin in coinset:
-        change.add_coin(coin)
-        if change_remainder == 0:
-            return change
-
-    raise Exception("Unable to make change: {change}".format(change=change))
 
 
 print(make_change(6, [1, 5, 10, 25]))
-# print()
-# print(make_change(6, [3, 4]))
-# print()
-# print(make_change(6, [1, 3, 4]))
-# print()
-# print(make_change(6, [5, 7]))
-
-
-# TODO: optimization: use some floor division to grab coin multiples without
-# additional loops
-
-# TODO: optimization: implement memoization to reduce the number of loops
-# required to tabulate change
+print(make_change(6, [3, 4]))
+print(make_change(6, [1, 3, 4]))
+print(make_change(6, [5, 7]))
