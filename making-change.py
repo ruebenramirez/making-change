@@ -13,56 +13,65 @@
 # C. x = 6, coinset = [1,3,4]
 # D. x = 6, coinset = [5,7]
 
-DEBUG = True
+DEBUG = False
 
 
-def optimal_coinset(target_change, coinset):
-    """Only use coins we're able to make change with."""
-    coins = []
+class Change:
+    def __init__(self):
+        self.coins = {}
+
+    def add_coins(self, coin: int, count: int):
+        self.coins.update({coin: count})
+
+    def coins(self):
+        return self.coins
+
+
+def optimal_coinset(total: int, coinset: list):
+    '''Create an optimal coinset list.
+
+    Only use coins we're able to make change with.
+    Remove duplicate coins.
+    Sort the resulting optimal coinset list in reverse order to make it prep for efficient change calculation.'''
+    optimal_coinset = []
+
     for coin in coinset:
-        if coin <= target_change:
-            coins.append(coin)
-    return coins
+        if coin <= total:
+            if not coin in optimal_coinset:
+                optimal_coinset.append(coin)
+
+    optimal_coinset.sort(reverse=True)
+
+    if optimal_coinset is None:
+        raise Exception(f"Unable to make change. `optimal_coinset` built: {optimal_coinset}")
+
+    if DEBUG: print(f"optimal_coinset list: {optimal_coinset}")
+    return optimal_coinset
 
 
-def gen_change(change_target, coinset):
-    """explore all possibilities to make target change given coins"""
-    if change_target == 0:
-        return []
-    if change_target < 0:
-        return None
-    coinset = optimal_coinset(change_target, coinset)
-    change = None
-    for coin in coinset:
-        change_remainder = change_target - coin
-        change_option = gen_change(change_remainder, coinset)
-        if change_option is not None:
-            change_option.append(coin)
-            if change is None or len(change_option) < len(change):
-                change = change_option
-    return change
+def make_change(total: int, coinset: list):
+    '''return the optimal amount of change'''
+    change = Change()
+
+    for coin in optimal_coinset(total, coinset):
+        if DEBUG: print(f"coin: {coin}")
+        number_of_this_coin = total // coin
+        if DEBUG: print(f"number of this coin to use: {number_of_this_coin}")
+        change.add_coins(coin, number_of_this_coin)
+
+        # calculate remaining total to make change for
+        total = total - (coin * number_of_this_coin)
+        if DEBUG: print(f"remaining total to make change for: {total}")
 
 
-def count_change(coins):
-    """count change out into desired output format"""
-    change = {}
-    for coin in coins:
-        count = change.get(coin, 0) + 1
-        change[coin] = count
-    return change
+    return change.coins
 
 
-def make_change(x, coinset):
-    try:
-        coins = gen_change(x, coinset)
-        return count_change(coins)
-    except Exception:
-        print("Unable to make change for {x} with these coins: {cs}".format(
-            x=x, cs=coinset))
-        return {}
-
-
-print(make_change(6, [1, 5, 10, 25]))
-print(make_change(6, [3, 4]))
-print(make_change(6, [1, 3, 4]))
-print(make_change(6, [5, 7]))
+if __name__ == "__main__":
+    print(make_change(6, [1, 5, 10, 25]))
+    print()
+    print(make_change(6, [3, 4]))
+    print()
+    print(make_change(6, [1, 3, 4]))
+    print()
+    print(make_change(6, [5, 7]))
