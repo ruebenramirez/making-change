@@ -15,3 +15,9 @@ def test_making_change_default_inputs():
 
     with pytest.raises(CannotMakeChangeException) as excinfo:
         result = make_change(6, [5, 7])
+
+
+def test_making_change_from_unordered_inputs():
+
+    result = make_change(6, [10, 5, 1, 25])
+    assert result in [{5: 1, 1: 1}, {1: 6}]
